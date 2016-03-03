@@ -31,10 +31,18 @@ CohortRouter.route ('/Filters')
 
         //request query json
         //data={
-        //    "$where": "this.birthDate.toJSON().slice(0, 10) > '2000-09-14' ",
-        //    "gender":"male"
+        //    "$and":[
+        //        {
+        //            "$where": "this.birthDate.toJSON().slice(0, 10) > '2000-09-14' "
+        //        },
+        //        {
+        //            "$where": "this.birthDate.toJSON().slice(0, 10) <'2003-09-14'"
+        //        },
+        //        {
+        //            "gender":"male"
+        //        }
+        //    ]
         //};
-
 
         data=req.body;
         Patient.find(data,function (err,cohorts) {
