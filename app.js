@@ -2,7 +2,8 @@ var express    = require('express'),
     app        = express(),
     mongoose   = require('mongoose'),
     bodyParser = require('body-parser'),
-    Cohort     = require('./models/CohortModel');
+    Cohort     = require('./models/CohortModel'),
+    Patient     = require('./models/PatientModel');
 
 var port=process.env.PORT||3000;
 
@@ -22,12 +23,45 @@ app.get('/',function(req,res){
 
 var CohortRouter=express.Router();
 
+CohortRouter.route ('/Filters')
+    .post(function(req,res){
+        var data={
+            "gender":""
+        };
+
+        //request query json
+        //data={
+        //    "$where": "this.birthDate.toJSON().slice(0, 10) > '2000-09-14' ",
+        //    "gender":"male"
+        //};
+
+
+        data=req.body;
+        Patient.find(data,function (err,cohorts) {
+            if(err)
+                res.status(500).send(err);
+            else
+                res.json(cohorts);
+        });
+    })
+    .get(function(req,res){
+        var query=req.query;
+        Patient.find(query,function (err,patients) {
+            if(err)
+                res.status(500).send(err);
+            else
+                res.json(patients);
+        }).limit(200);
+    });
+
+
 CohortRouter.route ('/Cohorts')
     .post(function(req,res){
         var cohort=new Cohort(req.body);
         cohort.save();                        // saving to the DB
         res.status(201).send(cohort);         // status 201 means successfully record created
     })
+
     .get(function(req,res){
         var query=req.query;
         Cohort.find(query,function (err,cohorts) {
