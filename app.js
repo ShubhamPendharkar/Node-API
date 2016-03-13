@@ -25,31 +25,58 @@ var CohortRouter=express.Router();
 
 CohortRouter.route ('/Filters')
     .post(function(req,res){
-        var data={
-            "gender":""
-        };
+        var data={};
 
         //request query json
         //data={
         //    "$and":[
         //        {
-        //            "$where": "this.birthDate.toJSON().slice(0, 10) > '2000-09-14' "
+        //            "$where": "this.PatientDateOfBirth.toJSON().slice(0, 10) > '2000-09-14' "
         //        },
         //        {
-        //            "$where": "this.birthDate.toJSON().slice(0, 10) <'2003-09-14'"
+        //            "$where": "this.PatientDateOfBirth.toJSON().slice(0, 10) <'2003-09-14'"
         //        },
         //        {
-        //            "gender":"male"
+        //            "PatientGender":"Male"
+        //        },
+        //        {
+        //          "City":"Mumbai"
         //        }
         //    ]
         //};
+        data={
+            "MinAge":30,
+            "MaxAge":40,
+            "PatientGender":"Male",
+            "City":["Mumbai","Delhi"]
+        }
+        var CurrentDate = new Date();
+        var CurrentYear = CurrentDate.getFullYear();
+        var MinAgeYear=CurrentYear-data.MinAge;
+        var MaxAgeYear=CurrentYear-data.MaxAge;
 
-        data=req.body;
-        Patient.find(data,function (err,cohorts) {
+        var ageString1='this.PatientDateOfBirth.toJSON().slice(0, 10) <\''+MinAgeYear+'-01-01'+'\'' ;
+        var ageString2='this.PatientDateOfBirth.toJSON().slice(0, 10) >\''+MaxAgeYear+'-01-01'+'\'' ;
+        var Filter={
+            "$and":[
+                {
+                    "$where": ageString1
+                },
+                {
+                    "$where": ageString2
+                },
+                {
+                    "PatientGender":data.PatientGender
+                },
+            ]
+        };
+        console.log(Filter);
+        //data=req.body;
+        Patient.find(Filter,function (err,patients) {
             if(err)
                 res.status(500).send(err);
             else
-                res.json(cohorts);
+                res.json(patients);
         });
     })
     .get(function(req,res){
