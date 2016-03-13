@@ -76,19 +76,18 @@ CohortRouter.route ('/Filters')
         var GenderStringJSON=JSON.parse('['+GenderString+']');
         /*******************************Gender FILTER*******************************/
 
+        
 
-        //
-        //
-        ///*******************************Cities FILTER*******************************/
-        //var CityLength = data.City.length;
-        //var CityString="";
-        //for (i = 0; i < CityLength-1; i++) {
-        //    CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
-        //}
-        //CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
-        //var CityStringJSON=JSON.parse('['+CityString+']');
-        ///*******************************Cities FILTER*******************************/
-        //
+        /*******************************Cities FILTER*******************************/
+        var CityLength = data.City.length;
+        var CityString="";
+        for (i = 0; i < CityLength-1; i++) {
+            CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+        }
+        CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
+        var CityStringJSON=JSON.parse('['+CityString+']');
+        /*******************************Cities FILTER*******************************/
+
 
 
         var Filter={
