@@ -27,8 +27,8 @@ CohortRouter.route ('/Filters')
     .post(function(req,res){
         var data={};
 
-        //request query json
-        //data={
+        //Filter format
+        //Filter={
         //    "$and":[
         //        {
         //            "$where": "this.PatientDateOfBirth.toJSON().slice(0, 10) > '2000-09-14' "
@@ -44,12 +44,17 @@ CohortRouter.route ('/Filters')
         //        }
         //    ]
         //};
-        data={
-            "MinAge":30,
-            "MaxAge":40,
-            "PatientGender":"Male",
-            "City":["Mumbai","Delhi"]
-        }
+
+        //data={
+        //    "MinAge":30,
+        //    "MaxAge":40,
+        //    "PatientGender":["Male"],
+        //    "City":["Nirmal","Jhumri Tilaiya"]
+        //}
+
+        data=req.body;
+
+        /*******************************AGE FILTER*******************************/
         var CurrentDate = new Date();
         var CurrentYear = CurrentDate.getFullYear();
         var MinAgeYear=CurrentYear-data.MinAge;
@@ -57,6 +62,35 @@ CohortRouter.route ('/Filters')
 
         var ageString1='this.PatientDateOfBirth.toJSON().slice(0, 10) <\''+MinAgeYear+'-01-01'+'\'' ;
         var ageString2='this.PatientDateOfBirth.toJSON().slice(0, 10) >\''+MaxAgeYear+'-01-01'+'\'' ;
+        /*******************************AGE FILTER*******************************/
+
+
+        /*******************************Gender FILTER*******************************/
+        var i;
+        var GenderLength = data.PatientGender.length;
+        var GenderString="";
+        for (i = 0; i < GenderLength-1; i++) {
+            GenderString=GenderString+'{ "PatientGender" :"'+data.PatientGender[i]+'"},';
+        }
+        GenderString=GenderString+'{ "PatientGender" :"'+data.PatientGender[i]+'"}';
+        var GenderStringJSON=JSON.parse('['+GenderString+']');
+        /*******************************Gender FILTER*******************************/
+
+
+        //
+        //
+        ///*******************************Cities FILTER*******************************/
+        //var CityLength = data.City.length;
+        //var CityString="";
+        //for (i = 0; i < CityLength-1; i++) {
+        //    CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+        //}
+        //CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
+        //var CityStringJSON=JSON.parse('['+CityString+']');
+        ///*******************************Cities FILTER*******************************/
+        //
+
+
         var Filter={
             "$and":[
                 {
@@ -66,12 +100,13 @@ CohortRouter.route ('/Filters')
                     "$where": ageString2
                 },
                 {
-                    "PatientGender":data.PatientGender
-                },
+                    "$or":GenderStringJSON
+                }//,
+                //{
+                //    "$or":CityStringJSON
+                //}
             ]
         };
-        console.log(Filter);
-        //data=req.body;
         Patient.find(Filter,function (err,patients) {
             if(err)
                 res.status(500).send(err);
@@ -79,6 +114,7 @@ CohortRouter.route ('/Filters')
                 res.json(patients);
         });
     })
+
     .get(function(req,res){
         var query=req.query;
         Patient.find(query,function (err,patients) {
@@ -86,7 +122,7 @@ CohortRouter.route ('/Filters')
                 res.status(500).send(err);
             else
                 res.json(patients);
-        }).limit(200);
+        });
     });
 
 
