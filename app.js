@@ -25,8 +25,6 @@ var CohortRouter=express.Router();
 
 CohortRouter.route ('/Filters')
     .post(function(req,res){
-        var data={};
-
         //Filter format
         //Filter={
         //    "$and":[
@@ -45,14 +43,14 @@ CohortRouter.route ('/Filters')
         //    ]
         //};
 
-        //data={
+        //var data={
         //    "MinAge":30,
         //    "MaxAge":40,
         //    "PatientGender":["Male"],
         //    "City":["Nirmal","Jhumri Tilaiya"]
-        //}
+        //};
 
-        data=req.body;
+        var data=req.body;
 
         /*******************************AGE FILTER*******************************/
         var CurrentDate = new Date();
@@ -63,6 +61,7 @@ CohortRouter.route ('/Filters')
         var ageString1='this.PatientDateOfBirth.toJSON().slice(0, 10) <\''+MinAgeYear+'-01-01'+'\'' ;
         var ageString2='this.PatientDateOfBirth.toJSON().slice(0, 10) >\''+MaxAgeYear+'-01-01'+'\'' ;
         /*******************************AGE FILTER*******************************/
+
 
 
         /*******************************Gender FILTER*******************************/
@@ -76,18 +75,18 @@ CohortRouter.route ('/Filters')
         var GenderStringJSON=JSON.parse('['+GenderString+']');
         /*******************************Gender FILTER*******************************/
 
-        
 
-        /*******************************Cities FILTER*******************************/
-        var CityLength = data.City.length;
-        var CityString="";
-        for (i = 0; i < CityLength-1; i++) {
-            CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
-        }
-        CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
-        var CityStringJSON=JSON.parse('['+CityString+']');
-        /*******************************Cities FILTER*******************************/
-
+        //
+        ///*******************************Cities FILTER*******************************/
+        //var CityLength = data.City.length;
+        //var CityString="";
+        //for (i = 0; i < CityLength-1; i++) {
+        //    CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+        //}
+        //CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
+        //var CityStringJSON=JSON.parse('['+CityString+']');
+        ///*******************************Cities FILTER*******************************/
+        //
 
 
         var Filter={
@@ -106,11 +105,25 @@ CohortRouter.route ('/Filters')
                 //}
             ]
         };
+
         Patient.find(Filter,function (err,patients) {
             if(err)
                 res.status(500).send(err);
             else
                 res.json(patients);
+
+            //
+            ///*************************Creating Json for Cohort*************************/
+            //var cohortJSON={
+            //    "name":"Temp",
+            //    "filters":data,
+            //    "patients":patients
+            //};      // end of cohortJSON
+            //var cohort=new Cohort(cohortJSON);
+            //cohort.save();
+            ///********************************Cohort Created*****************************/
+            //
+
         });
     })
 
