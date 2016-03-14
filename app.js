@@ -76,17 +76,17 @@ CohortRouter.route ('/Filters')
         /*******************************Gender FILTER*******************************/
 
 
-        //
-        ///*******************************Cities FILTER*******************************/
-        //var CityLength = data.City.length;
-        //var CityString="";
-        //for (i = 0; i < CityLength-1; i++) {
-        //    CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
-        //}
-        //CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
-        //var CityStringJSON=JSON.parse('['+CityString+']');
-        ///*******************************Cities FILTER*******************************/
-        //
+
+        /*******************************Cities FILTER*******************************/
+        var CityLength = data.City.length;
+        var CityString="";
+        for (i = 0; i < CityLength-1; i++) {
+            CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+        }
+        CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
+        var CityStringJSON=JSON.parse('['+CityString+']');
+        /*******************************Cities FILTER*******************************/
+
 
 
         var Filter={
@@ -99,10 +99,10 @@ CohortRouter.route ('/Filters')
                 },
                 {
                     "$or":GenderStringJSON
-                }//,
-                //{
-                //    "$or":CityStringJSON
-                //}
+                },
+                {
+                    "$or":CityStringJSON
+                }
             ]
         };
 
@@ -113,7 +113,7 @@ CohortRouter.route ('/Filters')
                 res.json(patients);
 
             //
-            ///*************************Creating Json for Cohort*************************/
+            ///*************************Creating Json for Cohort and Saving*************************/
             //var cohortJSON={
             //    "name":"Temp",
             //    "filters":data,
@@ -121,7 +121,7 @@ CohortRouter.route ('/Filters')
             //};      // end of cohortJSON
             //var cohort=new Cohort(cohortJSON);
             //cohort.save();
-            ///********************************Cohort Created*****************************/
+            ///********************************Cohort Created**************************************/
             //
 
         });
