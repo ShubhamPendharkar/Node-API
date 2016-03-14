@@ -44,6 +44,7 @@ CohortRouter.route ('/Filters')
         //};
 
         //var data={
+        //    "CohortName":"Temp",
         //    "MinAge":30,
         //    "MaxAge":40,
         //    "PatientGender":["Male"],
@@ -109,20 +110,18 @@ CohortRouter.route ('/Filters')
         Patient.find(Filter,function (err,patients) {
             if(err)
                 res.status(500).send(err);
-            else
-                res.json(patients);
-
-            //
-            ///*************************Creating Json for Cohort and Saving*************************/
-            //var cohortJSON={
-            //    "name":"Temp",
-            //    "filters":data,
-            //    "patients":patients
-            //};      // end of cohortJSON
-            //var cohort=new Cohort(cohortJSON);
-            //cohort.save();
-            ///********************************Cohort Created**************************************/
-            //
+            else {
+                //res.json(patients);
+                /*************************Creating Json for Cohort and Saving*************************/
+                var cohortJSON = {
+                    "name": data.CohortName,
+                    "filters": data,
+                    "patients": patients
+                };      // end of cohortJSON
+                var cohort = new Cohort(cohortJSON);
+                cohort.save();
+                /********************************Cohort Created**************************************/
+            }
 
         });
     })
