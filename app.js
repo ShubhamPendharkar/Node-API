@@ -4,6 +4,7 @@ var express    = require('express'),
     bodyParser = require('body-parser'),
     Cohort     = require('./models/CohortModel'),
     Patient     = require('./models/PatientModel');
+    Disease     = require('./models/DiseaseModel');
 
 var port=process.env.PORT||3000;
 
@@ -12,7 +13,7 @@ app.use(bodyParser.json());
 //var db=mongoose.connect('mongodb://localhost:27017/persistent',function(err){
 var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
     if(err)
-        console.log(err);
+        console.log(err)
     else
         console.log('Mongo Connected.');
 });
@@ -80,15 +81,19 @@ CohortRouter.route ('/Filters')
 
         /*******************************Cities FILTER*******************************/
         var CityLength = data.City.length;
+        var CityStringJSON;
         var CityString="";
-        for (i = 0; i < CityLength-1; i++) {
-            CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+        if(!CityLength) {
+            CityStringJSON=[{ "City" : { $regex:/.*/ }}];
         }
-        CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
-        var CityStringJSON=JSON.parse('['+CityString+']');
+        else{
+            for (i = 0; i < CityLength-1; i++) {
+                CityString=CityString+'{ "City" :"'+data.City[i]+'"},';
+            }
+            CityString=CityString+'{ "City" :"'+data.City[i]+'"}';
+            CityStringJSON=JSON.parse('['+CityString+']');
+        }
         /*******************************Cities FILTER*******************************/
-
-
 
         var Filter={
             "$and":[
@@ -107,22 +112,23 @@ CohortRouter.route ('/Filters')
             ]
         };
 
-        Patient.find(Filter,function (err,patients) {
+        Patient.find(Filter,{"FirstName":1,"LastName":1,"PatientID":1,"_id":0},function (err,patients) {
             if(err)
                 res.status(500).send(err);
             else {
                 //res.json(patients);
                 /*************************Creating Json for Cohort and Saving*************************/
                 var cohortJSON = {
-                    "name": data.CohortName,
-                    "filters": data,
-                    "patients": patients
+                    "Name": data.CohortName,
+                    "Filters": data,
+                    "Patients": patients,
+                    "PatientsCount":patients.length
                 };      // end of cohortJSON
                 var cohort = new Cohort(cohortJSON);
                 cohort.save();
+                res.status(201).send("Successfully cohort created.");         // status 201 means successfully record created
                 /********************************Cohort Created**************************************/
             }
-
         });
     })
 
@@ -137,6 +143,7 @@ CohortRouter.route ('/Filters')
     });
 
 
+
 CohortRouter.route ('/Cohorts')
     .post(function(req,res){
         var cohort=new Cohort(req.body);
@@ -145,14 +152,35 @@ CohortRouter.route ('/Cohorts')
     })
 
     .get(function(req,res){
-        var query=req.query;
-        Cohort.find(query,function (err,cohorts) {
+        Cohort.find({},{"Name":1,"PatientsCount":1},function (err,cohorts) {
             if(err)
                 res.status(500).send(err);
             else
                 res.json(cohorts);
         });
     });
+
+CohortRouter.route('/Patients')
+    .get(function(req,res){
+        var query=req.query;
+        Patient.find(query,function (err,patients) {
+            if(err)
+                res.status(500).send(err);
+            else
+                res.json(patients);
+        });
+    });
+
+CohortRouter.route('/Diseases')
+    .get(function(req,res){
+        Disease.distinct("PrimaryDiagnosisDescription",function (err,diseases) {
+            if(err)
+                res.status(500).send(err);
+            else
+                res.json(diseases);
+        });
+    });
+
 
 CohortRouter.use('/Cohorts/:id',function(req,res,next) {
     Cohort.findById(req.params.id,function (err,cohort) {
@@ -173,6 +201,7 @@ CohortRouter.route('/Cohorts/:id')
     .get(function(req,res){
         res.json(req.cohort);
     })
+
     .put(function(req,res){
         req.cohort.id=req.body.id;
         req.cohort.name=req.body.name;
@@ -205,6 +234,6 @@ CohortRouter.route('/Cohorts/:id')
 
 
 app.use('/api',CohortRouter);
-app.listen(port, function () {
+    app.listen(port, function () {
     console.log('Listening on port no. '+ port);
 });
