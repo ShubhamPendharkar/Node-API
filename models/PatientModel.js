@@ -2,7 +2,7 @@ var mongoose= require('mongoose');
 Schema=mongoose.Schema;
 
 var PatientModel=new Schema({
-    "PatientID":{type:Number},
+    "PatientID":{type:String},
     "PatientGender":{type:String},
     "PatientDateOfBirth":{type:Date},
     "PatientRace":{type:String},
