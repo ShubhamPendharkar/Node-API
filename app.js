@@ -49,7 +49,8 @@ CohortRouter.route ('/Filters')
         //    "MinAge":30,
         //    "MaxAge":40,
         //    "PatientGender":["Male"],
-        //    "City":["Nirmal","Jhumri Tilaiya"]
+        //    "City":["Nirmal","Jhumri Tilaiya"],
+        //    "Diseases":["Endocrine, nutritional and metabolic diseases complicating the puerperium","Disorder of ligament, right hip"]
         //};
 
         var data=req.body;
@@ -95,41 +96,82 @@ CohortRouter.route ('/Filters')
         }
         /*******************************Cities FILTER*******************************/
 
-        var Filter={
-            "$and":[
-                {
-                    "$where": ageString1
-                },
-                {
-                    "$where": ageString2
-                },
-                {
-                    "$or":GenderStringJSON
-                },
-                {
-                    "$or":CityStringJSON
-                }
-            ]
+
+
+        /*******************************Diseases FILTER*******************************/
+        var DiseaseLength = data.Diseases.length;
+        var DiseaseStringJSON;
+        var DiseaseString="";
+        if(!DiseaseLength) {
+            DiseaseStringJSON=[{ "PrimaryDiagnosisDescription" : { $regex:/.*/ }}];
+        }
+        else{
+            for (i = 0; i < DiseaseLength-1; i++) {
+                DiseaseString=DiseaseString+'{ "PrimaryDiagnosisDescription" :"'+data.Diseases[i]+'"},';
+            }
+            DiseaseString=DiseaseString+'{ "PrimaryDiagnosisDescription" :"'+data.Diseases[i]+'"}';
+            DiseaseStringJSON=JSON.parse('['+DiseaseString+']');
+        }
+
+        var diseaseFilter={
+            "$or":DiseaseStringJSON
         };
 
-        Patient.find(Filter,{"FirstName":1,"LastName":1,"PatientID":1,"_id":0},function (err,patients) {
+        var PatientsID_with_diseases;
+        Disease.find(diseaseFilter,{"PatientID":1,_id:0},function(err,PatientsID_with_diseases){
             if(err)
-                res.status(500).send(err);
-            else {
-                //res.json(patients);
-                /*************************Creating Json for Cohort and Saving*************************/
-                var cohortJSON = {
-                    "Name": data.CohortName,
-                    "Filters": data,
-                    "Patients": patients,
-                    "PatientsCount":patients.length
-                };      // end of cohortJSON
-                var cohort = new Cohort(cohortJSON);
-                cohort.save();
-                res.status(201).send("Successfully cohort created.");         // status 201 means successfully record created
-                /********************************Cohort Created**************************************/
+                res.json(err);
+            else{
+
+
+                /*******************************Diseases FILTER*******************************/
+
+                var Filter={
+                    "$and":[
+                        {
+                            "$where": ageString1
+                        },
+                        {
+                            "$where": ageString2
+                        },
+                        {
+                            "$or":GenderStringJSON
+                        },
+                        {
+                            "$or":CityStringJSON
+                        },
+                        {
+                            "$or":PatientsID_with_diseases
+                        }
+
+                    ]
+                };
+
+
+                Patient.find(Filter,{"FirstName":1,"LastName":1,"PatientID":1,"_id":0},function (err,patients) {
+                    if(err)
+                        res.status(500).send(err);
+                    else {
+                        //res.json(patients);
+                        /*************************Creating Json for Cohort and Saving*************************/
+                        var cohortJSON = {
+                            "Name": data.CohortName,
+                            "Filters": data,
+                            "Patients": patients,
+                            "PatientsCount":patients.length
+                        };      // end of cohortJSON
+                        var cohort = new Cohort(cohortJSON);
+                        cohort.save();
+                        res.status(201).send("Successfully cohort created.");         // status 201 means successfully record created
+                        /********************************Cohort Created**************************************/
+                    }
+                });
+
             }
+
         });
+
+
     })
 
     .get(function(req,res){
