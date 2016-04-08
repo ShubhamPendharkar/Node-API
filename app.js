@@ -10,8 +10,8 @@ var port=process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-var db=mongoose.connect('mongodb://localhost:27017/persistent',function(err){
-//var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
+//var db=mongoose.connect('mongodb://localhost:27017/persistent',function(err){
+var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
     if(err)
         console.log(err)
     else
@@ -185,8 +185,8 @@ CohortRouter.route ('/Filters')
     });
 
 
-/*******************************************Test************************************************/
-CohortRouter.route ('/test')
+/*******************************************Sending values for creating Graph************************************************/
+CohortRouter.route ('/Disease')
     .post(function(req,res){
        var disease=req.body;
        var dis=disease.DiseaseName;
@@ -200,7 +200,7 @@ CohortRouter.route ('/test')
         })//end of find()
     });
 
-CohortRouter.route('/test2')
+CohortRouter.route('/Graph')
     .post(function(req,res){
         Patient.aggregate([
             { $match:{
@@ -209,7 +209,7 @@ CohortRouter.route('/test2')
             },
             { $group : {_id :{City:"$City"}, CityCount : {$sum : 1}} },
             { $sort: { CityCount: -1 } },
-            { $limit: 10 }
+            { $limit: 15 }
         ])
             .exec(function(err,temp){
                 if(err)
@@ -220,10 +220,7 @@ CohortRouter.route('/test2')
     });
 
 
-
-
-/*******************************************Test************************************************/
-
+/*******************************************Sending values for creating Graph************************************************/
 
 
 
@@ -244,9 +241,9 @@ CohortRouter.route ('/Cohorts')
     });
 
 CohortRouter.route('/Patients')
-    .post(function(req,res){
+    .get(function(req,res){
         var query=req.query;
-        Patient.findOne(query,function (err,patients) {
+        Patient.find(query,{"FirstName":1,"LastName":1,"City":1,"PatientGender":1,"PatientMaritalStatus":1,"_id":0,"PatientDateOfBirth":1},function (err,patients) {
             if(err)
                 res.status(500).send(err);
             else
