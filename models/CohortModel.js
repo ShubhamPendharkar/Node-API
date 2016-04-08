@@ -7,7 +7,8 @@ var CohortModel=new Schema({
         "MinAge":{type:Number},
         "MaxAge":{type:Number},
         "PatientGender":[{type:String}],
-        "City":[{type:String}]
+        "City":[{type:String}],
+        "Diseases":[{type:String}]
     },
     Patients:[{
         "PatientID":{type:String},

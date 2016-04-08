@@ -10,8 +10,8 @@ var port=process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-//var db=mongoose.connect('mongodb://localhost:27017/persistent',function(err){
-var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
+var db=mongoose.connect('mongodb://localhost:27017/persistent',function(err){
+//var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
     if(err)
         console.log(err)
     else
@@ -185,6 +185,47 @@ CohortRouter.route ('/Filters')
     });
 
 
+/*******************************************Test************************************************/
+CohortRouter.route ('/test')
+    .post(function(req,res){
+       var disease=req.body;
+       var dis=disease.DiseaseName;
+       Disease.find({"PrimaryDiagnosisDescription" : { $regex:dis }},{"PatientID":1,"_id":0} , function (err,patients) {
+            if(err)
+                res.send(err);
+            else{
+                    res.send(patients);
+                }//end of else
+
+        })//end of find()
+    });
+
+CohortRouter.route('/test2')
+    .post(function(req,res){
+        Patient.aggregate([
+            { $match:{
+                $or:req.body
+            }
+            },
+            { $group : {_id :{City:"$City"}, CityCount : {$sum : 1}} },
+            { $sort: { CityCount: -1 } },
+            { $limit: 10 }
+        ])
+            .exec(function(err,temp){
+                if(err)
+                    res.send(err);
+                else
+                    res.send(temp);
+            });
+    });
+
+
+
+
+/*******************************************Test************************************************/
+
+
+
 
 CohortRouter.route ('/Cohorts')
     .post(function(req,res){
@@ -203,9 +244,9 @@ CohortRouter.route ('/Cohorts')
     });
 
 CohortRouter.route('/Patients')
-    .get(function(req,res){
+    .post(function(req,res){
         var query=req.query;
-        Patient.find(query,function (err,patients) {
+        Patient.findOne(query,function (err,patients) {
             if(err)
                 res.status(500).send(err);
             else

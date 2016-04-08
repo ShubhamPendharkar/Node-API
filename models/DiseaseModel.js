@@ -2,6 +2,8 @@
  * Created by Shubham Pendharkar on 3/31/2016.
  */
 
+require('./PatientModel');
+
 var mongoose= require('mongoose');
 Schema=mongoose.Schema;
 
