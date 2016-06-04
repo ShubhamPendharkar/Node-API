@@ -10,8 +10,8 @@ var port=process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({extended:true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
-//var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
-var db=mongoose.connect('mongodb://localhost:27017/ionic',function(err){
+var db=mongoose.connect('mongodb://shubhamkvsc:jc327404@ds037395.mongolab.com:37395/ionic',function(err){
+//var db=mongoose.connect('mongodb://localhost:27017/ionic',function(err){
     if(err)
         console.log(err)
     else
